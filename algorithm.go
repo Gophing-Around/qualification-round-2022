@@ -17,8 +17,11 @@ func algorithm(
 ) []*PlannedProject {
 	plannedProjects := make([]*PlannedProject, 0)
 
-	for day := 0; day < maxDays; day++ {
-
+	nextDay := 0
+	for day := 0; day < maxDays || len(plannedProjects) >= len(projects); day++ {
+		if day < nextDay {
+			continue
+		}
 		for _, plannedProject := range plannedProjects {
 			if plannedProject.ended {
 				continue
@@ -39,6 +42,7 @@ func algorithm(
 		// 	}
 		// }
 
+		minNextDay := maxDays
 		for _, project := range projects {
 			// fmt.Printf("%d - PROCESSING PROJECT %s\n", day, project.name)
 			if project.alreadyPlanned {
@@ -78,9 +82,18 @@ func algorithm(
 
 			// append
 			plannedProject.startDay = day
+
 			plannedProject.project.alreadyPlanned = true
 			plannedProjects = append(plannedProjects, plannedProject)
 		}
+
+		for _, plannedProject := range plannedProjects {
+			if day+plannedProject.project.nDays < minNextDay {
+				minNextDay = day + plannedProject.project.nDays
+			}
+		}
+
+		nextDay = minNextDay
 	}
 
 	// for _, project := range projects {
