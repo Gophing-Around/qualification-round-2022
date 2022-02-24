@@ -75,8 +75,36 @@ func algorithm(
 
 				requiredLevel := role.level
 
-				minContribLevel := 999999999999999999
-				var minContributor *Contributor
+				if role.mentored {
+					bestContribScore := 0
+					var bestContrib *Contributor
+					for _, contributor := range availableContributors {
+						if contributor.allocated {
+							continue
+						}
+						contribSkillLevel := contributor.skills[role.name]
+
+						currContribScore := contributor.nSkills
+						if contribSkillLevel == requiredLevel-1 && (bestContribScore == 0 || currContribScore < bestContribScore) {
+							bestContrib = contributor
+							bestContribScore = currContribScore
+						}
+					}
+
+					if bestContrib != nil {
+						plannedProject.contributors[rolePosition] = bestContrib
+						bestContrib.allocated = true
+						for _, projectRole := range project.rolesList {
+							if bestContrib.skills[projectRole.name] >= projectRole.level {
+								projectRole.mentored = true
+							}
+						}
+						continue
+					}
+				}
+
+				bestContribScore := 0
+				var bestContrib *Contributor
 				for _, contributor := range availableContributors {
 					if contributor.allocated {
 						continue
@@ -84,9 +112,16 @@ func algorithm(
 					contribSkillLevel := contributor.skills[role.name]
 
 					if contribSkillLevel >= requiredLevel {
-						if contribSkillLevel < minContribLevel {
-							minContribLevel = contribSkillLevel
-							minContributor = contributor
+						currContribScore := 0
+						for _, roles := range project.rolesList {
+							if contributor.skills[roles.name] >= project.rolesMap[roles.name].level {
+								currContribScore += 1
+							}
+						}
+
+						if currContribScore > bestContribScore || (bestContrib != nil && currContribScore == bestContribScore && bestContrib.nSkills > contributor.nSkills) {
+							bestContribScore = currContribScore
+							bestContrib = contributor
 						}
 
 						// //  ||  (contribSkillLevel == requiredLevel-1 && findMenthor(plannedProject.contributors)
@@ -98,9 +133,14 @@ func algorithm(
 
 				}
 
-				if minContributor != nil {
-					plannedProject.contributors[rolePosition] = minContributor
-					minContributor.allocated = true
+				if bestContrib != nil {
+					plannedProject.contributors[rolePosition] = bestContrib
+					bestContrib.allocated = true
+					for _, projectRole := range project.rolesList {
+						if bestContrib.skills[projectRole.name] >= projectRole.level {
+							projectRole.mentored = true
+						}
+					}
 				}
 			}
 
@@ -146,6 +186,9 @@ func algorithm(
 						continue
 					}
 					contrib.allocated = false
+				}
+				for _, role := range plannedProject.project.rolesList {
+					role.mentored = false
 				}
 				continue
 			}

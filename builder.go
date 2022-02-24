@@ -27,9 +27,10 @@ type Project struct {
 }
 
 type Role struct {
-	id    int
-	name  string
-	level int
+	id       int
+	name     string
+	level    int
+	mentored bool
 }
 
 func buildInput(inputSet string) (int, *Config, []*Contributor, []*Project, map[string][]*Contributor) {
