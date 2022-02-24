@@ -7,17 +7,17 @@ import (
 
 func main() {
 	files := []string{
-		"a",
-		// "b",
-		// "c",
-		// "d",
-		// "e",
-		// "f",
+		"a_an_example",
+		// "b_better_start_small",
+		// "c_collaboration",
+		// "d_dense_schedule",
+		// "e_exceptional_skills",
+		// "f_find_great_mentors",
 	}
 
 	for _, fileName := range files {
 		fmt.Printf("Processing input: %s\n", fileName)
-		inputSet := readFile(fmt.Sprintf("./inputFiles/%s.in", fileName))
+		inputSet := readFile(fmt.Sprintf("./inputFiles/%s.in.txt", fileName))
 
 		config := buildInput(inputSet)
 		printInputMetrics(config)
