@@ -25,8 +25,8 @@ func algorithm(
 		projectA := projects[a]
 		projectB := projects[b]
 
-		scoreA := projectA.score / projectA.nDays
-		scoreB := projectB.score / projectB.nDays
+		scoreA := projectA.score // / projectA.nDays
+		scoreB := projectB.score // / projectB.nDays
 
 		return scoreA > scoreB
 	})
@@ -60,7 +60,6 @@ func algorithm(
 		}
 
 		minNextDay := maxDays
-		// fmt.Printf("STARTING PROJECT ITERATION\n")
 		for _, project := range projects {
 			if project.alreadyPlanned || project.bestBefore+project.score-project.nDays < day {
 				continue
@@ -75,18 +74,33 @@ func algorithm(
 				availableContributors := rolesContributor[role.name]
 
 				requiredLevel := role.level
+
+				minContribLevel := 999999999999999999
+				var minContributor *Contributor
 				for _, contributor := range availableContributors {
 					if contributor.allocated {
 						continue
 					}
 					contribSkillLevel := contributor.skills[role.name]
+
 					if contribSkillLevel >= requiredLevel {
-						//  ||  (contribSkillLevel == requiredLevel-1 && findMenthor(plannedProject.contributors)
-						// plannedProject.contributors = append(plannedProject.contributors, contributor)
-						plannedProject.contributors[rolePosition] = contributor
-						contributor.allocated = true
-						break
+						if contribSkillLevel < minContribLevel {
+							minContribLevel = contribSkillLevel
+							minContributor = contributor
+						}
+
+						// //  ||  (contribSkillLevel == requiredLevel-1 && findMenthor(plannedProject.contributors)
+						// // plannedProject.contributors = append(plannedProject.contributors, contributor)
+						// plannedProject.contributors[rolePosition] = contributor
+						// contributor.allocated = true
+						// break
 					}
+
+				}
+
+				if minContributor != nil {
+					plannedProject.contributors[rolePosition] = minContributor
+					minContributor.allocated = true
 				}
 			}
 
@@ -112,7 +126,7 @@ func algorithm(
 									continue
 								}
 
-								if availableContributor.skills[unfilledRole.name] == unfilledRole.level-1 {
+								if availableContributor.skills[unfilledRole.name] == unfilledRole.level-1 || (availableContributor.skills[unfilledRole.name] == 0 && unfilledRole.level == 1) {
 									plannedProject.contributors[rolePosition] = contributor
 									contributor.allocated = true
 									break
