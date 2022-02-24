@@ -8,9 +8,10 @@ type Config struct {
 }
 
 type Contributor struct {
-	name    string
-	nSkills int
-	skills  map[string]int
+	name      string
+	nSkills   int
+	allocated bool
+	skills    map[string]int
 }
 
 type Project struct {
@@ -21,6 +22,8 @@ type Project struct {
 	nRoles     int
 	rolesList  []*Role
 	rolesMap   map[string]*Role
+
+	alreadyPlanned bool
 }
 
 type Role struct {
@@ -29,7 +32,7 @@ type Role struct {
 	level int
 }
 
-func buildInput(inputSet string) (*Config, []*Contributor, []*Project, map[string][]*Contributor) {
+func buildInput(inputSet string) (int, *Config, []*Contributor, []*Project, map[string][]*Contributor) {
 	lines := splitNewLines(inputSet)
 	configLine := splitSpaces(lines[0])
 	fmt.Printf("Config line: %v\n", configLine)
@@ -44,6 +47,8 @@ func buildInput(inputSet string) (*Config, []*Contributor, []*Project, map[strin
 	rolesContributor := make(map[string][]*Contributor)
 
 	i := 1
+
+	maxDays := 0
 
 	k := 0
 	for ; k < config.contributors; k++ {
@@ -85,6 +90,10 @@ func buildInput(inputSet string) (*Config, []*Contributor, []*Project, map[strin
 			nRoles:     toint(projectLine[4]),
 		}
 
+		if maxDays < project.bestBefore+project.score-project.nDays {
+			maxDays = project.bestBefore + project.score - project.nDays
+		}
+
 		j := 0
 		roles := make(map[string]*Role)
 		rolesList := make([]*Role, 0)
@@ -105,7 +114,7 @@ func buildInput(inputSet string) (*Config, []*Contributor, []*Project, map[strin
 		projects = append(projects, &project)
 	}
 
-	return config, contributors, projects, rolesContributor
+	return maxDays, config, contributors, projects, rolesContributor
 }
 
 func buildOutput(plannedProjects []*PlannedProject) string {
@@ -113,7 +122,7 @@ func buildOutput(plannedProjects []*PlannedProject) string {
 	for _, project := range plannedProjects {
 		result += fmt.Sprintf("%s\n", project.name)
 		for _, contrib := range project.contributors {
-			result += fmt.Sprintf("%s ", contrib)
+			result += fmt.Sprintf("%s ", contrib.name)
 		}
 		result += "\n"
 	}

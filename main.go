@@ -7,7 +7,7 @@ import (
 
 func main() {
 	files := []string{
-		"a_an_example",
+		// "a_an_example",
 		"b_better_start_small",
 		"c_collaboration",
 		"d_dense_schedule",
@@ -19,7 +19,7 @@ func main() {
 		fmt.Printf("Processing input: %s\n", fileName)
 		inputSet := readFile(fmt.Sprintf("./inputFiles/%s.in.txt", fileName))
 
-		config, contributors, projects, rolesContributor := buildInput(inputSet)
+		maxDays, config, contributors, projects, rolesContributor := buildInput(inputSet)
 		// fmt.Printf("Config %+v\n", config)
 		// for _, contrib := range contributors {
 		// 	fmt.Printf("Contributor %+v\n", contrib)
@@ -33,7 +33,7 @@ func main() {
 
 		printInputMetrics(config)
 
-		result := algorithm(config, contributors, projects, rolesContributor)
+		result := algorithm(maxDays, config, contributors, projects, rolesContributor)
 
 		output := buildOutput(result)
 		printResultMetrics(config)
