@@ -42,31 +42,32 @@ func algorithm(
 			if day >= plannedProject.startDay+plannedProject.project.nDays {
 				plannedProject.ended = true
 				for _, contrib := range plannedProject.contributors {
+					// oldSkills := contrib.skills
+
+					// requiredLevel := plannedProject.project.rolesList[rolePosition].level
+					// if contrib.level
+
+					// for _, role := range plannedProject.project.rolesList {
+					// 	role.name
+					// }
+
 					contrib.allocated = false
 				}
 			}
 		}
 
-		// for _, project := range projects {
-		// 	fmt.Printf("> Project %+v\n", project)
-		// 	for _, role := range project.rolesMap {
-		// 		fmt.Printf(">> Role %+v\n", role)
-		// 	}
-		// }
-
 		minNextDay := maxDays
 		for _, project := range projects {
-			// fmt.Printf("%d - PROCESSING PROJECT %s\n", day, project.name)
 			if project.alreadyPlanned || project.bestBefore+project.score-project.nDays < day {
 				continue
 			}
 			plannedProject := &PlannedProject{
 				name:         project.name,
-				contributors: make([]*Contributor, 0),
+				contributors: make([]*Contributor, project.nRoles),
 				project:      project,
 			}
 
-			for _, role := range project.rolesList {
+			for rolePosition, role := range project.rolesList {
 				availableContributors := rolesContributor[role.name]
 
 				requiredLevel := role.level
@@ -76,17 +77,90 @@ func algorithm(
 					}
 					contribSkillLevel := contributor.skills[role.name]
 					if contribSkillLevel >= requiredLevel {
-						plannedProject.contributors = append(plannedProject.contributors, contributor)
+						//  ||  (contribSkillLevel == requiredLevel-1 && findMenthor(plannedProject.contributors)
+						// plannedProject.contributors = append(plannedProject.contributors, contributor)
+						plannedProject.contributors[rolePosition] = contributor
 						contributor.allocated = true
 						break
 					}
 				}
 			}
 
-			// fmt.Printf("SHOULD BE PLANNING PROJECT %s %+v %+v\n", project.name, plannedProject, plannedProject.contributors)
-			// Non abbiamo riempito i ruoli!
-			if len(plannedProject.contributors) != project.nRoles {
+			// // project roles not filled!!
+			if hasunfilledRoles(plannedProject.contributors) {
+				for rolePosition, filledRole := range plannedProject.contributors {
+					if filledRole != nil {
+						continue
+					}
+
+					unfilledRole := project.rolesList[rolePosition]
+
+					for _, contributor := range plannedProject.contributors {
+						if contributor == nil {
+							continue
+						}
+						contributorSkillLevel := contributor.skills[unfilledRole.name]
+						if contributorSkillLevel >= unfilledRole.level {
+
+							availableContributors := rolesContributor[unfilledRole.name]
+							for _, availableContributor := range availableContributors {
+								if contributor.allocated {
+									continue
+								}
+
+								if availableContributor.skills[unfilledRole.name] == unfilledRole.level-1 {
+									plannedProject.contributors[rolePosition] = contributor
+									contributor.allocated = true
+									break
+								}
+
+							}
+						}
+						// if filledRole.name == unfilledRole.name {
+
+						// }
+					}
+
+					// availableContributors := rolesContributor[unfilledRole.name]
+					// for _, contributor := range availableContributors {
+					// 	if contributor.allocated {
+					// 		continue
+					// 	}
+
+					// }
+				}
+			}
+			// if len(plannedProject.contributors) != project.nRoles {
+
+			// 	}
+			// 	// for _, role := range project.rolesList {
+			// 	// 	requiredLevel := role.level
+
+			// 	// 	availableContributors := rolesContributor[role.name]
+			// 	// 	for _, contributor := range availableContributors {
+			// 	// 		if contributor.allocated {
+			// 	// 			continue
+			// 	// 		}
+			// 	// 		contribSkillLevel := contributor.skills[role.name]
+			// 	// 		if contribSkillLevel == requiredLevel-1 {
+			// 	// 			existsMenthor()
+
+			// 	// 			//  ||  (contribSkillLevel == requiredLevel-1 && findMenthor(plannedProject.contributors)
+			// 	// 			plannedProject.contributors = append(plannedProject.contributors, contributor)
+			// 	// 			contributor.allocated = true
+			// 	// 			break
+			// 	// 		}
+			// 	// 	}
+			// 	}
+			// }
+
+			// can't use the project!
+			// if len(plannedProject.contributors) != project.nRoles {
+			if hasunfilledRoles(plannedProject.contributors) {
 				for _, contrib := range plannedProject.contributors {
+					if contrib == nil {
+						continue
+					}
 					contrib.allocated = false
 				}
 				continue
@@ -136,4 +210,13 @@ func algorithm(
 	// 	plannedProjects = append(plannedProjects, plannedProject)
 	// }
 	return plannedProjects
+}
+
+func hasunfilledRoles(contributors []*Contributor) bool {
+	for _, contrib := range contributors {
+		if contrib == nil {
+			return true
+		}
+	}
+	return false
 }
