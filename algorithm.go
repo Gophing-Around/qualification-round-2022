@@ -1,6 +1,8 @@
 package main
 
-import "sort"
+import (
+	"sort"
+)
 
 type PlannedProject struct {
 	name         string
@@ -23,14 +25,14 @@ func algorithm(
 		projectA := projects[a]
 		projectB := projects[b]
 
-		scoreA := projectA.score
-		scoreB := projectB.score
+		scoreA := projectA.score / projectA.nDays
+		scoreB := projectB.score / projectB.nDays
 
 		return scoreA > scoreB
 	})
 
 	nextDay := 0
-	for day := 0; day < maxDays || len(plannedProjects) >= len(projects); day++ {
+	for day := 0; day < maxDays && len(plannedProjects) < len(projects); day++ {
 		if day < nextDay {
 			continue
 		}
@@ -41,15 +43,16 @@ func algorithm(
 
 			if day >= plannedProject.startDay+plannedProject.project.nDays {
 				plannedProject.ended = true
-				for _, contrib := range plannedProject.contributors {
-					// oldSkills := contrib.skills
+				for rolePosition, contrib := range plannedProject.contributors {
 
-					// requiredLevel := plannedProject.project.rolesList[rolePosition].level
-					// if contrib.level
+					requiredRole := plannedProject.project.rolesList[rolePosition]
 
-					// for _, role := range plannedProject.project.rolesList {
-					// 	role.name
-					// }
+					oldSkills := contrib.skills
+					if contrib.skills[requiredRole.name] <= requiredRole.level {
+						oldLevel := oldSkills[requiredRole.name]
+						oldSkills[requiredRole.name] = oldLevel + 1
+					}
+					contrib.skills = oldSkills
 
 					contrib.allocated = false
 				}
@@ -57,6 +60,7 @@ func algorithm(
 		}
 
 		minNextDay := maxDays
+		// fmt.Printf("STARTING PROJECT ITERATION\n")
 		for _, project := range projects {
 			if project.alreadyPlanned || project.bestBefore+project.score-project.nDays < day {
 				continue
@@ -116,43 +120,9 @@ func algorithm(
 
 							}
 						}
-						// if filledRole.name == unfilledRole.name {
-
-						// }
 					}
-
-					// availableContributors := rolesContributor[unfilledRole.name]
-					// for _, contributor := range availableContributors {
-					// 	if contributor.allocated {
-					// 		continue
-					// 	}
-
-					// }
 				}
 			}
-			// if len(plannedProject.contributors) != project.nRoles {
-
-			// 	}
-			// 	// for _, role := range project.rolesList {
-			// 	// 	requiredLevel := role.level
-
-			// 	// 	availableContributors := rolesContributor[role.name]
-			// 	// 	for _, contributor := range availableContributors {
-			// 	// 		if contributor.allocated {
-			// 	// 			continue
-			// 	// 		}
-			// 	// 		contribSkillLevel := contributor.skills[role.name]
-			// 	// 		if contribSkillLevel == requiredLevel-1 {
-			// 	// 			existsMenthor()
-
-			// 	// 			//  ||  (contribSkillLevel == requiredLevel-1 && findMenthor(plannedProject.contributors)
-			// 	// 			plannedProject.contributors = append(plannedProject.contributors, contributor)
-			// 	// 			contributor.allocated = true
-			// 	// 			break
-			// 	// 		}
-			// 	// 	}
-			// 	}
-			// }
 
 			// can't use the project!
 			// if len(plannedProject.contributors) != project.nRoles {
