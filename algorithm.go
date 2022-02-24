@@ -23,10 +23,10 @@ func algorithm(
 		projectA := projects[a]
 		projectB := projects[b]
 
-		scoreA := projectA.score
-		scoreB := projectB.score
+		scoreA := projectA.bestBefore
+		scoreB := projectB.bestBefore
 
-		return scoreA > scoreB
+		return scoreA < scoreB
 	})
 
 	nextDay := 0
