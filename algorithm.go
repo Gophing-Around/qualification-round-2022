@@ -1,5 +1,7 @@
 package main
 
+import "sort"
+
 type PlannedProject struct {
 	name         string
 	startDay     int
@@ -16,6 +18,16 @@ func algorithm(
 	rolesContributor map[string][]*Contributor,
 ) []*PlannedProject {
 	plannedProjects := make([]*PlannedProject, 0)
+
+	sort.Slice(projects, func(a, b int) bool {
+		projectA := projects[a]
+		projectB := projects[b]
+
+		scoreA := projectA.score
+		scoreB := projectB.score
+
+		return scoreA > scoreB
+	})
 
 	nextDay := 0
 	for day := 0; day < maxDays || len(plannedProjects) >= len(projects); day++ {
