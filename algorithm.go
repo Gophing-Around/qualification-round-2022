@@ -45,7 +45,7 @@ func algorithm(
 		minNextDay := maxDays
 		for _, project := range projects {
 			// fmt.Printf("%d - PROCESSING PROJECT %s\n", day, project.name)
-			if project.alreadyPlanned {
+			if project.alreadyPlanned || project.bestBefore+project.score-project.nDays < day {
 				continue
 			}
 			plannedProject := &PlannedProject{
