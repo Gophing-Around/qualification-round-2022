@@ -25,10 +25,10 @@ func algorithm(
 		projectA := projects[a]
 		projectB := projects[b]
 
-		scoreA := projectA.score // / projectA.nDays
-		scoreB := projectB.score // / projectB.nDays
+		scoreA := projectA.nRoles / projectA.nDays // / projectA.nDays
+		scoreB := projectB.nRoles / projectB.nDays // / projectB.nDays
 
-		return scoreA > scoreB
+		return scoreA < scoreB
 	})
 
 	nextDay := 0
@@ -60,6 +60,34 @@ func algorithm(
 		}
 
 		minNextDay := maxDays
+
+		for _, contributor := range contributors {
+			var bestSkillName string
+			bestSkillLevel := 0
+			for contribSkillName, contribSkillLevel := range contributor.skills {
+				if contribSkillLevel == bestSkillLevel {
+					bestSkillName = contribSkillName
+					bestSkillLevel = contribSkillLevel
+					break
+				}
+
+				// contributorLevelForRole := contributor.skills[projectRole.name]
+			}
+
+			for _, project := range projects {
+				plannedProject := &PlannedProject{
+					name:         project.name,
+					contributors: make([]*Contributor, project.nRoles),
+					project:      project,
+				}
+				for rolePosition, projectRole := range project.rolesList {
+					if projectRole.name == bestSkillName && projectRole.level == bestSkillLevel {
+						plannedProject.contributors[rolePosition] = contributor
+					}
+				}
+			}
+		}
+
 		for _, project := range projects {
 			if project.alreadyPlanned || project.bestBefore+project.score-project.nDays < day {
 				continue

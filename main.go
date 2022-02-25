@@ -7,10 +7,10 @@ import (
 
 func main() {
 	files := []string{
-		"a_an_example",
-		"b_better_start_small",
-		"c_collaboration",
-		"d_dense_schedule",
+		// "a_an_example",
+		// "b_better_start_small",
+		// "c_collaboration",
+		// "d_dense_schedule",
 		// "e_exceptional_skills",
 		"f_find_great_mentors",
 	}
